@@ -1,5 +1,4 @@
 #include "server.h"
-#include "file.h"
 
 int start_listening(int port) {
     // create a struct that holds info about for the socket

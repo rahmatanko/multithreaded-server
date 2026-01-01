@@ -2,10 +2,7 @@
 #define SERVER_H
 
 #include "common.h"
-#include <stdio.h>      // printf, perror
-#include <stdlib.h>     // exit, atoi
-#include <string.h>     // memset
-#include <unistd.h>     // close
+#include "file.h"
 
 // socket-specific libs
 #include <sys/types.h>

@@ -7,7 +7,7 @@
 int parse_request(char * request, char * path) {
     // variables to hold the method (GET, POST) and version (1.0, 1.1, etc)
     // size is one value larger than the string itself to make space for the null character
-    char method[8], version[16];
+    // char method[8], version[16];
 
     // a correct request would in the form 'GET /file HTTP/1.0'
     // sscanf returns the no. of successfully filled variables, so anything other than 1 is not successful

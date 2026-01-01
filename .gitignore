@@ -1,0 +1,17 @@
+# Build artifacts
+/build/
+/obj/
+
+# Backup files
+*.o
+*.out
+*.exe
+
+# Editor temporary files
+*~
+*.swp
+*.swo
+*.DS_Store
+
+# Local testing folders
+/testing/

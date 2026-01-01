@@ -1,11 +1,4 @@
-#include <stdio.h> 
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h> 
-#include <sys/stat.h>  // this gives info about a file before opening it, efficient
-
-// buffer size
-#define SIZE 1024
+#include "file.h"
 
 // now that there's a path, the file contents have to be returned
 // status codes from here: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
@@ -41,3 +34,5 @@ void file_contents(int accepted, char * path) {
         fclose(f);
     }
 }
+
+

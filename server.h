@@ -1,7 +1,7 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-// we'll import all the libs here ig
+#include "common.h"
 #include <stdio.h>      // printf, perror
 #include <stdlib.h>     // exit, atoi
 #include <string.h>     // memset
@@ -13,7 +13,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-int start_server(int port);
+int start_listening(int port);
 int accept_client(int listening);
+int start_server(int port);
+
 
 #endif

@@ -1,6 +1,7 @@
 #include "server.h"
+#include "file.h"
 
-int start_server(int port) {
+int start_listening(int port) {
     // create a struct that holds info about for the socket
     // can't use the original sockaddr struct because it is very generic
     struct sockaddr_in saddress;
@@ -61,4 +62,51 @@ int accept_client(int listening) {
     }
 
     return accepted;
+}
+
+int start_server(int port) {
+    // initialize our listening socket
+    int listening = start_listening(port);
+
+    while (1) {
+        // attempt to get a client socket
+        int accepted = accept_client(listening);
+
+        // skip the client if there's an error
+        if (accepted < 0) continue;
+
+        // read the request
+        char request[SIZE + 1];
+
+        // http requests can arrive in multiple packets and may be longer than our buffer size but we're assuming otherwise for this implementation
+        // read like fread returns size but it can also return a negative value if its an error
+        // which is why ssize_t is used not size_t
+        ssize_t n = read(accepted, request, sizeof(request));
+
+        // if the the request is empty or an error occurred, we skip over this client
+        if (n <= 0) {
+            // avoiding file descriptor leaks
+            close(accepted);
+            continue;
+        }
+        
+        // since read doesn't automatically add a null char like some other string funcs do, it must be added or else there will be overflow
+        request[n] = '\0';
+
+        // attempt to get the path from the request
+        char path[256];
+        if (!parse_request(request, path)) {
+            // get the file contents, if any
+            file_contents(accepted, path + 1); // skipped the leading '/'
+        }
+
+        else {
+            // otherwise the request is invalid
+            write(accepted, "HTTP/1.0 400 Bad Request\r\n\r\n", 28);
+        }
+
+        close(accepted);
+    }
+
+    return 0;
 }

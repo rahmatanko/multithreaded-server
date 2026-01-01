@@ -19,6 +19,7 @@ void file_contents(int accepted, char * path) {
     // if the file is empty, then our response is 404, or if the file is actually a directory then its an error as well
     // otherwise if there's another problem in opening the file then the error is the same
     if (stat(path, &info) < 0 || S_ISDIR(info.st_mode) || !(f = fopen(path, "rb"))) {
+        perror("file open failed");
         write(accepted, "HTTP/1.0 404 Not Found\r\n\r\n", 26);
     }
 

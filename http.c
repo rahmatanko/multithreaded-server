@@ -10,14 +10,10 @@ int parse_request(char * request, char * path) {
     char method[8], version[16];
 
     // a correct request would in the form 'GET /file HTTP/1.0'
-    // sscanf returns the no. of successfully filled variables, so anything other than 3 is not successful
-    if (sscanf(request, "%7s %255s %15s", method, path, version) != 3) return -1;
-
-    // strcmp returns the difference between characters in strings, so if it isn't 0, it means the strings are not the same
-    // we have to make sure it's a GET request of version HTTP/1.0
-    if (strcmp(method, "GET")) return -1;
-    if (strcmp(version, "HTTP/1.0")) return -1;
+    // sscanf returns the no. of successfully filled variables, so anything other than 1 is not successful
+    if (!sscanf(request, "GET %255s HTTP/1.0", path)) return -1;
 
     // if we reached here, this was a success
     return 0;
 }
+

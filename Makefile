@@ -3,7 +3,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra -g -I.
 
 # Source files
-SRCS = main.c server.c file.c http.c queue.c
+SRCS = main.c server.c file.c http.c queue.c worker.c
 # Object files go in build/
 OBJS = $(patsubst %.c,build/%.o,$(SRCS))
 

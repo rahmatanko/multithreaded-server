@@ -112,11 +112,12 @@ void producer(int listening, requeue_t * q) {
     }
 }
 
-int start_server(int port, int thread_count, int queue_size) {
+int start_server(int port, int thread_count, int queue_size, policy_t policy) {
     // creating and initializing our request queue
     requeue_t q;
     q.max_size = queue_size;
     q.requests = malloc(sizeof(req_t) * queue_size);
+    q.policy = policy;        
     queue(&q);
 
     // initialize our listening socket

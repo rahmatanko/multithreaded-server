@@ -3,8 +3,7 @@
 
 #include "common.h"
 
-// #define POOL_SIZE 6 // pcs and laptops nowdays have 4-8 cores usually so 6 sits nicely in the middle
-// #define QUEUE_SIZE 16 // the producer can add upto 16 requests at a time to the queue
+typedef enum { FIFO, SFF } policy_t; // policies for benchmarking
 
 // bounded request queue
 typedef struct {
@@ -18,6 +17,8 @@ typedef struct {
     pthread_cond_t vacant, filled;
     // and a lock so that the queue can only be modified by 1 thread at a time
     pthread_mutex_t lock;
+
+    policy_t policy; // checking which scheduling policy to use
 
 } requeue_t;
 

@@ -63,6 +63,24 @@ int accept_client(int listening) {
     return accepted;
 }
 
+// our producer thread (1 thread which will be main thread)
+void producer(int listening, requeue_t * q) {
+    while (1) {
+        // request is defined here so we get a fresh object each run
+        req_t req;
+
+        // attempt to get a client socket
+        req.client = accept_client(listening);
+
+        // skip the client if there's an error
+        if (req.client < 0) continue;
+
+        // we do the http parsing in the worker threads so that we don't slow down main thread
+        // for now we immediately add the request to the queue
+        enqueue(q, req);
+    }
+}
+
 int start_server(int port) {
     // initialize our listening socket
     int listening = start_listening(port);

@@ -4,6 +4,7 @@
 #include "file.h"
 #include "queue.h"
 #include "http.h"
+#include "log.h"
 
 // represents a single worker thread
 typedef struct worker {

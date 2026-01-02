@@ -13,6 +13,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+void handle_sigint(int sig);
 int start_listening(int port);
 int accept_client(int listening);
 void producer(int listening, requeue_t * q);

@@ -25,15 +25,37 @@ void enqueue(requeue_t * q, req_t req){
         pthread_cond_wait(&(q->vacant), &(q->lock));
     }
 
-    // now we can safely add the request to the queue
-    // queues use FIFO, first in first out which means the request is added to the butt of the data structure
-    q->count++;
-    q->requests[q->tail] = req;
-    // we use wrapping so that memory is not wasted
-    q->tail = (q->tail + 1) % QUEUE_SIZE;
-    
-    printf("[PRODUCER] enqueued | count=%d\n", q->count);
+    // now we can safely add the request
+    // SFF insertion: find the correct spot based on file_size
+    int pos = q->tail;  // start at the tail
+    int i;
 
+    // shift requests from tail backward until we find where to insert
+    for (i = q->count - 1; i >= 0; i--) {
+        int idx = (q->head + i) % QUEUE_SIZE;
+
+        // compare file sizes
+        if (req.file_size < q->requests[idx].file_size) {
+            // shift this request forward to make space
+            q->requests[(idx + 1) % QUEUE_SIZE] = q->requests[idx];
+        }
+        // tie-breaker: same size → smaller ID goes first
+        else if (req.file_size == q->requests[idx].file_size &&
+                 req.ID < q->requests[idx].ID) {
+            q->requests[(idx + 1) % QUEUE_SIZE] = q->requests[idx];
+        }
+        else {
+            // found the spot: insert after this
+            pos = (idx + 1) % QUEUE_SIZE;
+            break;
+        }
+    }
+
+    // insert request at the calculated position
+    q->requests[pos] = req;
+    q->count++;
+
+    printf("[PRODUCER] enqueued | count=%d | file_size=%zu | seq=%lu\n", q->count, req.file_size, req.ID);
 
     // signal that the queue isn't empty
     pthread_cond_signal(&(q->filled));

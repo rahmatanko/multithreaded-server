@@ -1,5 +1,6 @@
 #include "server.h"
 
+// request counter for ids
 static size_t req_counter = 0;
 
 int start_listening(int port) {
@@ -96,7 +97,7 @@ void producer(int listening, requeue_t * q) {
         }
 
         // get file size
-        if (get_file_size(req.path, &req.file_size) != 0) {
+        if (get_file_size((req.path + 1), &req.file_size) != 0) {
             // file missing or not regular
             write(req.client, "HTTP/1.0 404 Not Found\r\n\r\n", 26);
             close(req.client);
@@ -120,17 +121,15 @@ int start_server(int port) {
     int listening = start_listening(port);
 
     // create our thread pool
-    pthread_t workers[POOL_SIZE];
-    for (int i = 0; i < POOL_SIZE; i++) pthread_create(&workers[i], NULL, worker, (void *)&q);
+    worker_t workers[POOL_SIZE];
+    for (int i = 0; i < POOL_SIZE; i++) {
+        workers[i].id = i + 1;        // assign unique worker ID
+        workers[i].queue = &q;        // each worker gets pointer to queue
+        pthread_create(&workers[i].thread, NULL, worker, &workers[i]);
+    }
 
     // start accepting clients
     producer(listening, &q);
-
-    // clean everything up
-    close(listening);
-    pthread_mutex_destroy(&q.lock);
-    pthread_cond_destroy(&q.vacant);
-    pthread_cond_destroy(&q.filled);
 
     return 0;
 }

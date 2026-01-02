@@ -16,6 +16,7 @@ typedef struct {
     pthread_cond_t vacant, filled;
     // and a lock so that the queue can only be modified by 1 thread at a time
     pthread_mutex_t lock;
+    
 } requeue_t;
 
 // initialize the queue

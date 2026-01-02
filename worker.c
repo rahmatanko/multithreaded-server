@@ -1,7 +1,8 @@
 #include "worker.h"
 
 void * worker(void * arg) {
-    worker_t * worker = (requeue_t *) arg;
+    // cast the argument back to our worker_t struct
+    worker_t * worker = (worker_t *) arg;
 
     req_t req;
 

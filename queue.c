@@ -18,7 +18,7 @@ void enqueue(requeue_t * q, req_t req){
 
     // we have to make sure the thread actually has somethign to do i.e. the queue isn't full
     // otherwise the thread will just be using up cpu power
-    while (q->count == QUEUE_SIZE) {
+    while (q->count == q->max_size) {
         // cond_wait just puts the thread to sleep. and keeps track of it through the cond variable vacant
         // we have to use a while loop instead of a simple if because threads sometimes wake up randomly, and we must make sure they don't progress
         printf("[PRODUCER] blocked | queue full (count=%d)\n", q->count);
@@ -26,27 +26,27 @@ void enqueue(requeue_t * q, req_t req){
     }
 
     // now we can safely add the request
-    // SFF insertion: find the correct spot based on file_size
+    // SFF insertion: find the correct spot based on file_max_size
     int pos = q->tail;  // start at the tail
     int i;
 
     // shift requests from tail backward until we find where to insert
     for (i = q->count - 1; i >= 0; i--) {
-        int idx = (q->head + i) % QUEUE_SIZE;
+        int idx = (q->head + i) % q->max_size;
 
-        // compare file sizes
+        // compare file max_sizes
         if (req.file_size < q->requests[idx].file_size) {
             // shift this request forward to make space
-            q->requests[(idx + 1) % QUEUE_SIZE] = q->requests[idx];
+            q->requests[(idx + 1) % q->max_size] = q->requests[idx];
         }
-        // tie-breaker: same size → smaller ID goes first
+        // tie-breaker: same max_size → smaller ID goes first
         else if (req.file_size == q->requests[idx].file_size &&
                  req.ID < q->requests[idx].ID) {
-            q->requests[(idx + 1) % QUEUE_SIZE] = q->requests[idx];
+            q->requests[(idx + 1) % q->max_size] = q->requests[idx];
         }
         else {
             // found the spot: insert after this
-            pos = (idx + 1) % QUEUE_SIZE;
+            pos = (idx + 1) % q->max_size;
             break;
         }
     }
@@ -55,7 +55,7 @@ void enqueue(requeue_t * q, req_t req){
     q->requests[pos] = req;
     q->count++;
 
-    printf("[PRODUCER] enqueued | count=%d | file_size=%zu | seq=%lu\n", q->count, req.file_size, req.ID);
+    printf("[PRODUCER] enqueued | count=%d | file_max_size=%zu | seq=%lu\n", q->count, req.file_size, req.ID);
 
     // signal that the queue isn't empty
     pthread_cond_signal(&(q->filled));
@@ -81,10 +81,9 @@ req_t dequeue(requeue_t * q) {
     req_t req = q->requests[q->head];
 
     // we use wrapping so that memory is not wasted
-    q->head = (q->head + 1) % QUEUE_SIZE;
+    q->head = (q->head + 1) % q->max_size;
 
     printf("[WORKER %ld] dequeued | count=%d\n", pthread_self(), q->count);
-
 
     // signal that the queue isn't full
     pthread_cond_signal(&(q->vacant));
@@ -93,3 +92,4 @@ req_t dequeue(requeue_t * q) {
 
     return req;
 }
+

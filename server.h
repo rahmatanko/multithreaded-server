@@ -17,6 +17,6 @@ void handle_sigint(int sig);
 int start_listening(int port);
 int accept_client(int listening);
 void producer(int listening, requeue_t * q);
-int start_server(int port);
+int start_server(int port, int thread_count, int queue_size);
 
 #endif

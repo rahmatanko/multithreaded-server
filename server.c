@@ -112,19 +112,21 @@ void producer(int listening, requeue_t * q) {
     }
 }
 
-int start_server(int port) {
+int start_server(int port, int thread_count, int queue_size) {
     // creating and initializing our request queue
     requeue_t q;
+    q.max_size = queue_size;
+    q.requests = malloc(sizeof(req_t) * queue_size);
     queue(&q);
 
     // initialize our listening socket
     int listening = start_listening(port);
 
     // create our thread pool
-    worker_t workers[POOL_SIZE];
-    for (int i = 0; i < POOL_SIZE; i++) {
-        workers[i].id = i + 1;        // assign unique worker ID
-        workers[i].queue = &q;        // each worker gets pointer to queue
+    worker_t *workers = malloc(sizeof(worker_t) * thread_count);
+    for (int i = 0; i < thread_count; i++) {
+        workers[i].id = i + 1;  // assign unique worker ID
+        workers[i].queue = &q;  // each worker gets pointer to queue
         pthread_create(&workers[i].thread, NULL, worker, &workers[i]);
     }
 

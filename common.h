@@ -4,7 +4,6 @@
 #include <stdlib.h>     // exit, atoi
 #include <string.h>     // memset
 #include <unistd.h>     // close
-#include <limits.h>
 
 // buffer size
 #define SIZE 4096
@@ -13,9 +12,6 @@
 typedef struct request {
     int client; // client socket
     char path[SIZE]; // the returned path
-
 } req_t;
-
-
 
 #endif

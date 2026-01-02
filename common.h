@@ -4,6 +4,7 @@
 #include <stdlib.h>     // exit, atoi
 #include <string.h>     // memset
 #include <unistd.h>     // close
+#include <time.h>   // for time(), time_t
 
 // buffer size
 #define SIZE 4096
@@ -13,6 +14,9 @@ typedef struct request {
     int client; // client socket
     char path[SIZE]; // the returned path
     char header[SIZE]; // the header in text
+    time_t arrival; // arrival time
+    size_t ID;
+    size_t file_size;
 } req_t;
 
 #endif

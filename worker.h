@@ -5,6 +5,6 @@
 #include "queue.h"
 #include "http.h"
 
-void * worker(requeue_t * q);
+void * worker(void * arg);
 
 #endif 

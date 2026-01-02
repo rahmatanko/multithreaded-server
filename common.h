@@ -12,6 +12,7 @@
 typedef struct request {
     int client; // client socket
     char path[SIZE]; // the returned path
+    char header[SIZE]; // the header in text
 } req_t;
 
 #endif

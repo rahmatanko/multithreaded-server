@@ -112,7 +112,7 @@ int start_server(int port) {
 
         // attempt to get the path from the request
         char path[256];
-        if (!parse_request(request, path)) {
+        if (!get_path(request, path)) {
             // get the file contents, if any
             file_contents(accepted, path + 1); // skipped the leading '/'
         }

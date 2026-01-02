@@ -1,8 +1,9 @@
 #ifndef HTTP_H
 #define HTTP_H
 
-#include "common.h"
+#include "file.h"
 
-int parse_request(char * request, char * path);
+int get_header(int accepted, char * header);
+int get_path(char * request, char * path);
 
 #endif

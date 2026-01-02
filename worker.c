@@ -12,13 +12,20 @@ void * worker(void * arg) {
         // get the header
         if (get_header(req.client, req.header)) {close(req.client); continue;}
 
-        // get path from the header
-        if (get_path(req.header, req.path)) {close(req.client); continue;}
+        // attempt to get the path from the header
+        if (!get_path(req.header, req.path)) {
+            // get the file contents, if any
+            file_contents(req.client, req.path + 1); // skipped the leading '/'
+        }
 
-        // get file contents
-        file_contents(req.client, req.path);
+        else {
+            // otherwise the request is invalid
+            write(req.client, "HTTP/1.0 400 Bad Request\r\n\r\n", 28);
+        }
 
         // closing the socket to avoid file descriptor leak
         close(req.client);
     }
+
+    return NULL;
 }

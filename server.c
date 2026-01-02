@@ -1,5 +1,7 @@
 #include "server.h"
 
+static size_t req_counter = 0;
+
 int start_listening(int port) {
     // create a struct that holds info about for the socket
     // can't use the original sockaddr struct because it is very generic
@@ -75,8 +77,36 @@ void producer(int listening, requeue_t * q) {
         // skip the client if there's an error
         if (req.client < 0) continue;
 
-        // we do the http parsing in the worker threads so that we don't slow down main thread
-        // for now we immediately add the request to the queue
+        // set the arrival time
+        req.arrival = time(NULL);
+
+        // assign unique sequence ID
+        // this function is atomic i.e. the addition and assignment happens in 1 hardware cycle which prevents race conditions
+        req.ID = __sync_fetch_and_add(&req_counter, 1);
+
+        // get the header
+        if (get_header(req.client, req.header)) {close(req.client); continue;}
+
+        // extract path from header
+        if (get_path(req.header, req.path)) {
+            // invalid request
+            write(req.client, "HTTP/1.0 400 Bad Request\r\n\r\n", 28);
+            close(req.client);
+            continue;
+        }
+
+        // get file size
+        if (get_file_size(req.path, &req.file_size) != 0) {
+            // file missing or not regular
+            write(req.client, "HTTP/1.0 404 Not Found\r\n\r\n", 26);
+            close(req.client);
+            continue;
+        }
+
+        // log the request
+        log_request(&req);
+
+        // enqueue in SFF order
         enqueue(q, req);
     }
 }
@@ -96,6 +126,8 @@ int start_server(int port) {
     // start accepting clients
     producer(listening, &q);
 
+    // clean everything up
+    close(listening);
     pthread_mutex_destroy(&q.lock);
     pthread_cond_destroy(&q.vacant);
     pthread_cond_destroy(&q.filled);

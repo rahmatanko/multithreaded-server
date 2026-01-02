@@ -5,6 +5,7 @@
 #include "http.h"
 #include "queue.h"
 #include "worker.h"
+#include "log.h"
 
 // socket-specific libs
 #include <sys/types.h>

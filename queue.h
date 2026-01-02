@@ -1,7 +1,6 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
-#include <pthread.h>
 #include "common.h"
 
 #define POOL_SIZE 6 // pcs and laptops nowdays have 4-8 cores usually so 6 sits nicely in the middle

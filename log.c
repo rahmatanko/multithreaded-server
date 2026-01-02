@@ -7,7 +7,7 @@ static pthread_mutex_t log_mutex = PTHREAD_MUTEX_INITIALIZER;
 static const char *LOG_FILE = "server.log";
 
 // log the arrival of a new request
-void log_request(req_t *req) {
+void log_request(req_t * req) {
     // lock mutex to prevent interleaved writes from other threads
     pthread_mutex_lock(&log_mutex);
 
@@ -32,7 +32,7 @@ void log_request(req_t *req) {
 }
 
 // log when a worker thread picks a request to serve
-void log_worker(int worker_id, req_t *req) {
+void log_worker(int worker_id, req_t * req) {
     // lock mutex to prevent interleaved writes
     pthread_mutex_lock(&log_mutex);
 

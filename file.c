@@ -35,4 +35,24 @@ void file_contents(int accepted, char * path) {
     }
 }
 
+// gets the size of the file
+int get_file_size(char *path, size_t *file_size) {
+    struct stat st;
+
+    if (stat(path, &st) == 0) {
+        if (S_ISREG(st.st_mode)) {
+            // regular file, update the size
+            *file_size = (size_t)st.st_size;
+            return 0;  // success
+        } else {
+            // not a regular file (e.g., directory)
+            return -1;
+        }
+    } else {
+        // stat() failed (file doesn’t exist, permission issue, etc.)
+        perror("stat failed");
+        return -1;
+    }
+}
+
 

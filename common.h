@@ -5,6 +5,7 @@
 #include <string.h>     // memset
 #include <unistd.h>     // close
 #include <time.h>   // for time(), time_t
+#include <pthread.h>
 
 // buffer size
 #define SIZE 4096

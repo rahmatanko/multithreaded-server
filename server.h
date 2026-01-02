@@ -14,7 +14,7 @@
 
 int start_listening(int port);
 int accept_client(int listening);
-void producer();
+void producer(int listening, requeue_t * q);
 int start_server(int port);
 
 #endif

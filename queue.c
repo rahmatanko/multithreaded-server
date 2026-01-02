@@ -21,6 +21,7 @@ void enqueue(requeue_t * q, req_t req){
     while (q->count == QUEUE_SIZE) {
         // cond_wait just puts the thread to sleep. and keeps track of it through the cond variable vacant
         // we have to use a while loop instead of a simple if because threads sometimes wake up randomly, and we must make sure they don't progress
+        printf("[PRODUCER] blocked | queue full (count=%d)\n", q->count);
         pthread_cond_wait(&(q->vacant), &(q->lock));
     }
 
@@ -30,6 +31,9 @@ void enqueue(requeue_t * q, req_t req){
     q->requests[q->tail] = req;
     // we use wrapping so that memory is not wasted
     q->tail = (q->tail + 1) % QUEUE_SIZE;
+    
+    printf("[PRODUCER] enqueued | count=%d\n", q->count);
+
 
     // signal that the queue isn't empty
     pthread_cond_signal(&(q->filled));
@@ -43,7 +47,10 @@ req_t dequeue(requeue_t * q) {
     pthread_mutex_lock(&(q->lock));
 
     // again we must make sure the thread actually has a request to dequeue or else it will be consuminng power for nothing
-    while (q->count == 0) pthread_cond_wait(&(q->filled), &(q->lock));
+    while (q->count == 0) {
+        printf("[WORKER %ld] blocked | queue empty\n", pthread_self());
+        pthread_cond_wait(&(q->filled), &(q->lock));
+    }
 
     // queues use FIFO, so the request will be plucked from the head
     q->count--;
@@ -53,6 +60,9 @@ req_t dequeue(requeue_t * q) {
 
     // we use wrapping so that memory is not wasted
     q->head = (q->head + 1) % QUEUE_SIZE;
+
+    printf("[WORKER %ld] dequeued | count=%d\n", pthread_self(), q->count);
+
 
     // signal that the queue isn't full
     pthread_cond_signal(&(q->vacant));
